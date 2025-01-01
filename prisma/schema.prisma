@@ -18,3 +18,12 @@ model User {
   email String @unique
   password String
 }
+
+model Product {
+  id Int @default(autoincrement()) @id
+  name String
+  descrition String
+  price Float
+  total_supply Int
+  available_qty Int
+}

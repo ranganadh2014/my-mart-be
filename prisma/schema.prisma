@@ -22,7 +22,8 @@ model User {
 model Product {
   id Int @default(autoincrement()) @id
   name String
-  descrition String
+  description String
+  image_url String
   price Float
   total_supply Int
   available_qty Int

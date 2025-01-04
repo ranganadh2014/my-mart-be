@@ -21,8 +21,8 @@ private razorpay: Razorpay;
     console.log(prodId);
     try {
         const product = await this.productsService.getProduct(prodId);
-        const session = await this.razorpay.orders.create({ amount: product.price * 100, currency: 'INR', notes: { description: 'Order payment' } });
-        return session;
+        const order = await this.razorpay.orders.create({ amount: product.price * 100, currency: 'INR', notes: { description: 'Order payment' } });
+        return order;
     } catch (error) {
         console.log(error);
         throw new InternalServerErrorException('Failed to create checkout session');        

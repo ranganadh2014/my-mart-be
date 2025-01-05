@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import Razorpay from 'razorpay';
 import { ProductsService } from 'src/products/products.service';
 import crypto from 'crypto';
+import { OrdersService } from 'src/orders/orders.service';
 
 interface PaymentInfo {
       orderId: string,
@@ -17,6 +18,7 @@ private razorpay: Razorpay;
   constructor(
     private readonly productsService: ProductsService,
     private readonly configService: ConfigService,
+    private readonly ordersService: OrdersService,
 ){
     this.razorpay = new Razorpay({
         key_id: configService.getOrThrow('RAZOR_PAY_KEY_ID'),
@@ -29,6 +31,7 @@ private razorpay: Razorpay;
     try {
         const product = await this.productsService.getProduct(prodId);
         const order = await this.razorpay.orders.create({ amount: product.price * 100, currency: 'INR', notes: { description: 'Order payment' } });
+        //create new order in the db
         return order;
     } catch (error) {
         console.log(error);
@@ -75,8 +78,10 @@ private razorpay: Razorpay;
     .update(data.orderId + "|" + data.razorpayPaymentId)
     .digest("hex");
     if (generatedSignature !== data.razorpaySignature) {
+      //TODO: update order payment status in db
       throw new UnprocessableEntityException("Payment failed");
     }
+    //Update paymentId in the order db
     return {message: "Payment success"};
   }
 }

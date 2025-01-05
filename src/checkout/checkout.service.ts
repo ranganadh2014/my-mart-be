@@ -1,19 +1,24 @@
-import { ConsoleLogger, Injectable, InternalServerErrorException, Inject, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Razorpay from 'razorpay';
 import { ProductsService } from 'src/products/products.service';
 import crypto from 'crypto';
 import { OrdersService } from 'src/orders/orders.service';
+import { Order } from '@prisma/client';
 
 interface PaymentInfo {
-      orderId: string,
-      razorpayPaymentId: string,
-      razorpaySignature: string,
+  orderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
 }
 
 @Injectable()
 export class CheckoutService {
-private razorpay: Razorpay;
+  private razorpay: Razorpay;
 
   constructor(
     private readonly productsService: ProductsService,
@@ -21,21 +26,34 @@ private razorpay: Razorpay;
     private readonly ordersService: OrdersService,
 ){
     this.razorpay = new Razorpay({
-        key_id: configService.getOrThrow('RAZOR_PAY_KEY_ID'),
-        key_secret: configService.getOrThrow('RAZOR_PAY_KEY_SECRET'),
-      });
+      key_id: configService.getOrThrow('RAZOR_PAY_KEY_ID'),
+      key_secret: configService.getOrThrow('RAZOR_PAY_KEY_SECRET'),
+    });
 }
 
-  async createOrder(prodId: number) {
+  async createOrder(prodId: number, userId: number) {
     console.log(prodId);
     try {
-        const product = await this.productsService.getProduct(prodId);
-        const order = await this.razorpay.orders.create({ amount: product.price * 100, currency: 'INR', notes: { description: 'Order payment' } });
-        //create new order in the db
-        return order;
+      const product = await this.productsService.getProduct(prodId);
+      const order = await this.razorpay.orders.create({
+        amount: product.price * 100,
+        currency: 'INR',
+        notes: { description: 'Order payment' },
+      });
+      // create new order in the db
+      const newOrderEntry = {
+        rpOrderId: order.id,
+        productId: prodId,
+        userId: userId,
+        amount: product.price,
+      }
+      await this.ordersService.createOrder(newOrderEntry);
+      return order;
     } catch (error) {
-        console.log(error);
-        throw new InternalServerErrorException('Failed to create checkout session');        
+      console.log(error);
+      throw new InternalServerErrorException(
+        'Failed to create checkout session',
+      );
     }
   }
 
@@ -74,14 +92,18 @@ private razorpay: Razorpay;
     console.log(data);
     //generate signature
     const generatedSignature = crypto
-    .createHmac("sha256", this.configService.getOrThrow('RAZOR_PAY_KEY_SECRET'))
-    .update(data.orderId + "|" + data.razorpayPaymentId)
-    .digest("hex");
+      .createHmac(
+        'sha256',
+        this.configService.getOrThrow('RAZOR_PAY_KEY_SECRET'),
+      )
+      .update(data.orderId + '|' + data.razorpayPaymentId)
+      .digest('hex');
     if (generatedSignature !== data.razorpaySignature) {
       //TODO: update order payment status in db
-      throw new UnprocessableEntityException("Payment failed");
+      throw new UnprocessableEntityException('Payment failed');
     }
     //Update paymentId in the order db
-    return {message: "Payment success"};
+    await this.ordersService.updateOrder(data.orderId, data.razorpayPaymentId);
+    return { message: 'Payment success' };
   }
 }

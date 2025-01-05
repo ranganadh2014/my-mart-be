@@ -11,6 +11,16 @@ export class OrdersService {
       where: {
         userId,
       },
+      include: {
+        product: {
+          select: {
+            name: true, // Select only the product name
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc', // Sort by createdAt in descending order
+      },
     });
   }
 

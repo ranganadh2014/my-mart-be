@@ -5,11 +5,11 @@ import { CheckoutService } from './checkout.service';
 
 @Controller('checkout')
 export class CheckoutController {
-    constructor(private readonly checkoutService: CheckoutService){}
+  constructor(private readonly checkoutService: CheckoutService) {}
 
-    @Post('order')
-    @UseGuards(JwtAuthGuard)
-    async createSession(@Body() request: CreateOrderDto) {
-        return this.checkoutService.createOrder(request.prodId);
-    }
+  @Post('order')
+  @UseGuards(JwtAuthGuard)
+  async createSession(@Body() request: CreateOrderDto) {
+    return this.checkoutService.createOrder(request.prodId);
+  }
 }

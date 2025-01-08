@@ -6,6 +6,8 @@ import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { OrdersModule } from './orders/orders.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -31,12 +33,27 @@ import { OrdersModule } from './orders/orders.module';
       },
       inject: [ConfigService],
     }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => [
+        {
+          ttl: config.get('THROTTLE_TTL'),
+          limit: config.get('THROTTLE_LIMIT'),
+        },
+      ],
+    }),
     AuthModule,
     ProductsModule,
     CheckoutModule,
     OrdersModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: my-mart-be
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production

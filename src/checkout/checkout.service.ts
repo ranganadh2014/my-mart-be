@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   UnprocessableEntityException,
@@ -8,7 +9,6 @@ import Razorpay from 'razorpay';
 import { ProductsService } from 'src/products/products.service';
 import crypto from 'crypto';
 import { OrdersService } from 'src/orders/orders.service';
-import { Order } from '@prisma/client';
 
 interface PaymentInfo {
   orderId: string;
@@ -58,34 +58,33 @@ export class CheckoutService {
   }
 
   async handleCheckoutWebhook(signature: string, body: any) {
-    //TODO: implement webhook handler
-    // try {
-    //   // get the signature from header
-    //   const inComingSignature = 
-    //   req.headers['x-razorpay-signature'];
-    //   // create the hash
-    //   const shasum = 
-    //   crypto.createHmac("sha256", process.env.WEBHOOK_SECRET);
-    //   shasum.update(JSON.stringify(req.body));
-    //   const freshSignature = shasum.digest('hex');
-    //   if (freshSignature === inComingSignature) {
-    //       console.log("Signature is valid");
-    //       // do the further processing
-    //       const order_id=req.body.payload.payment.entity.order_id;
-    //       console.log("order_id",order_id);
-    //       console.log("event",req.body.event);
-
-    //       res.status(200).json({ message: "OK" });
-    //   } else {
-    //       // there some tempering 
-    //       res.status(403).json({ message: "Invalid" });
-    //   }
-
-    // } catch (err) {
-    //   console.log(err);
-    //   res.status(500).send("Something went wrong");
-    // }    
     console.log(body);
+    try {
+      // create the hash
+      const shasum = crypto.createHmac(
+        'sha256',
+        this.configService.getOrThrow('WEBHOOK_SECRET'),
+      );
+      shasum.update(body);
+      const freshSignature = shasum.digest('hex');
+      if (freshSignature === signature) {
+        // TODO: use logger module
+        console.log('Signature is valid');
+        // do the further processing
+        const order_id = body.payload.payment.entity.order_id;
+        console.log('order_id', order_id);
+        console.log('event', body.event);
+
+        return { message: 'OK' };
+      } else {
+        // there some tempering
+        throw new ForbiddenException({ message: 'Invalid' });
+      }
+
+    } catch (err) {
+      console.log(err);
+      throw new InternalServerErrorException('Something went wrong');
+    }
   }
 
   async paymentHandler(data: PaymentInfo) {

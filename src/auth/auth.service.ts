@@ -5,7 +5,7 @@ import { User } from '@prisma/client';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { TokenPayload } from './token-payload.interface';
+import { TokenPayload } from './interfaces/token-payload.interface';
 import ms from 'ms';
 
 @Injectable()
@@ -16,6 +16,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
   
+  // This function is being called by passport local strategy validate method
   async verifyUser(email: string, password: string) {
     // get the user details from DB and verify signature
     try {
@@ -33,18 +34,18 @@ export class AuthService {
   async login(user: User, response: Response) {
     const expiryDuration =
       this.configService.getOrThrow<string>('JWT_EXPIRATION');
+    // TODO: Use logger module
     console.log(`Expiry Duration: ${expiryDuration}`);
 
     const expires = new Date();
     expires.setMilliseconds(expires.getMilliseconds() + ms(expiryDuration));
-
-    //prepare payload
+    // prepare payload
     const tokenPayload: TokenPayload = {
       userId: user.id,
     }
-    //sign the payload
+    // sign the payload
     const token = await this.jwtService.sign(tokenPayload);
-    //save token in response cookies
+    // save token in response cookies
     response.cookie('Authentication', token, {
       secure: true,
       httpOnly: true,

@@ -9,8 +9,11 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
+    // Users module to validate user credentials
     UsersModule,
+    // Config module to get the environmental variables
     ConfigModule,
+    // Jwt module to generate & validate JWT token
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -23,6 +26,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     }),
   ],
   controllers: [AuthController],
+  // AuthService, Passport Local & Jwt strategies for authentication
   providers: [AuthService, LocalStrategy, JwtStrategy],
 })
 export class AuthModule {}

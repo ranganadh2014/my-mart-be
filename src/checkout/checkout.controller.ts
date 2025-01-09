@@ -3,8 +3,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateOrderDto } from './dtos/create-order.dto';
 import { CheckoutService } from './checkout.service';
 import { PaymentHandlerDto } from './dtos/payment-handler.dto';
-import { GetUser } from 'src/auth/get-user.decorator';
-import { TokenPayload } from 'src/auth/token-payload.interface';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { TokenPayload } from 'src/auth/interfaces/token-payload.interface';
 
 @Controller('checkout')
 export class CheckoutController {

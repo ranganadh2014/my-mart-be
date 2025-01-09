@@ -9,10 +9,14 @@ import { OrdersModule } from './orders/orders.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
+// Root App Module
 @Module({
   imports: [
+    //Users module provides users CRUD functionality
     UsersModule,
+    //Used for parsing configuration/environmental variables.
     ConfigModule.forRoot(),
+    //Pino logger configuration
     LoggerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
@@ -33,6 +37,7 @@ import { APP_GUARD } from '@nestjs/core';
       },
       inject: [ConfigService],
     }),
+    //Rate limiting module configuration TTL & Max calls
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -43,9 +48,13 @@ import { APP_GUARD } from '@nestjs/core';
         },
       ],
     }),
+    //Authorization module for login & JWT token generation
     AuthModule,
+    //Products module for products endpoing
     ProductsModule,
+    //checkout module for generating payment gateway order id
     CheckoutModule,
+    //Orders module for getting the orders list
     OrdersModule,
   ],
   controllers: [],

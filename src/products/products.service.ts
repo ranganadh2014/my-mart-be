@@ -5,10 +5,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ProductsService {
   constructor(private readonly prismaService: PrismaService) {}
 
+  // Get all Products
   async getProducts() {
     return await this.prismaService.product.findMany();
   }
 
+  // Get Product by product ID
   async getProduct(prodId: number) {
     try {
       const product = await this.prismaService.product.findUniqueOrThrow({
@@ -20,7 +22,5 @@ export class ProductsService {
     } catch (error) {
       throw new NotFoundException(`Product with Id ${prodId} Not found`);
     }
-
-    
   }
 }

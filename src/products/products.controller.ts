@@ -6,12 +6,14 @@ import { ProductsService } from './products.service';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService){}
 
+  // Protected route. Handled by Passport JWT strategy
   @UseGuards(JwtAuthGuard)
   @Get()
   async getProducts() {
     return this.productsService.getProducts();
   }
 
+  // Protected route. Handled by Passport JWT strategy
   @UseGuards(JwtAuthGuard)
   @Get(':prodId')
   async getProduct(@Param('prodId') prodId: string ) {

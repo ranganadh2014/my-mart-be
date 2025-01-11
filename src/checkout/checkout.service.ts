@@ -31,7 +31,7 @@ export class CheckoutService {
     });
 }
 
-  async createOrder(prodId: number, userId: number) {
+  async createOrder(prodId: string, userId: string) {
     console.log(prodId);
     try {
       const product = await this.productsService.getProduct(prodId);

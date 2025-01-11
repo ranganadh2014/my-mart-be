@@ -16,7 +16,7 @@ export class ProductsController {
   // Protected route. Handled by Passport JWT strategy
   @UseGuards(JwtAuthGuard)
   @Get(':prodId')
-  async getProduct(@Param('prodId') prodId: string ) {
-    return this.productsService.getProduct(+prodId);
+  async getProduct(@Param('prodId') prodId: string) {
+    return this.productsService.getProduct(prodId);
   }
 }

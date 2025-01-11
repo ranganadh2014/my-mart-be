@@ -6,7 +6,7 @@ import { Order } from '@prisma/client';
 export class OrdersService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getOrders(userId: number): Promise<Order[]> {
+  async getOrders(userId: string): Promise<Order[]> {
     return await this.prismaService.order.findMany({
       where: {
         userId,

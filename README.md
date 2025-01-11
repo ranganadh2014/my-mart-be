@@ -16,44 +16,30 @@ Feature List:
 ## Tech stack
 * Typescript 
 * NestJS (NodeJS/Express) Framework
-* Postgres SQL for Data store
 * Prisma ORM
 * PassportJS for authentication
 * Razorpay payment gateway JS module
 
 ## Dependencies
 * Latest verson NodeJS
-* Postgres database
+* MongoDB for Data store
 * Prisma
 
 ## Build & Run Steps Locally 
-* Install Postgres databse and set the user credentials.   
-```bash
-    docker run --name postgresql \ 
-
-    -e POSTGRES_USER=<username> \ 
-
-    -e POSTGRES_PASSWORD=<password> \ 
-
-    -p 5432:5432 \ 
-
-    -v /data:/var/lib/postgresql/data \ 
-
-    -d postgres:alpine 
-```
+* Create MongoDB using MongoDB Atlas account or launch MongoDB server locally
 * Install the latest NodeJS
 * Install required node packages inside project folder
 `npm install`
 * Set all the valid data to .env file. .env.example is provided for reference  
   + PORT set appropriate server listening port. 
-  + DATABASE_URL="postgresql://<username>:<password>@localhost:5432/<database-name>?schema=public"
+  + DATABASE_URL="mongodb+srv://<username>:<password>@<cluster-name>.mongodb.net/<db-name>?retryWrites=true&w=majority&appName=<cluster-name>" (we can get connection string from altas account)
   + JWT_SECRET (Generate random JWT secret)
   + JWT_EXPIRATION (set expiration time - e.g. 10h)
   + RAZOR_PAY_KEY_ID & RAZOR_PAY_KEY_SECRET - Create Razorpay account and generate key id and secret
   + WEBHOOK_SECRET - random string. Same string needs to be used while configuring webhook in Razorpay account
   + THROTTLE_TTL & THROTTLE_LIMIT - used for rate limiter. You can use example data provided or configure as per your need  
 * Database, table creation and data seeding can be done using Prisma tool  
-  * `npx prisma migrate deploy`
+  * `npx prisma db push`
   * Generate prima client code `npx prisma generate`
   * You edit the products related in data in 'data/products-dataset.ts' as per your need or default data can be used as is. 
   * Database seeding with products related data `npx prisma db seed`

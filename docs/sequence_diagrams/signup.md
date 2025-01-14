@@ -9,7 +9,7 @@ sequenceDiagram
         'background': '#1a1a1a'       // Dark background for the entire diagram
     }}}%%
     
-    box rgb(125, 125, 125) Frontend Application
+    box rgb(50, 50, 50) Frontend Application
         participant SignupPage
         participant serverAction
     end

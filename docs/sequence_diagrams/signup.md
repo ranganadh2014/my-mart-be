@@ -1,13 +1,20 @@
 ```mermaid
 sequenceDiagram
-    %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#f0f0f0', 'signalColor': '#4CAF50', 'signalTextColor': '#ffffff'}}}%%
+
+    %%{init: {'theme': 'base', 'themeVariables': { 
+        'primaryColor': '#000000',  // Darker background for boxes
+        'edgeColor': '#3e3e3e',      // White edges for better visibility
+        'nodeTextColor': '#3e3e3e',  // White text for better contrast
+        'signalColor': '#00ff00',    // Bright green signals
+        'background': '#1a1a1a'       // Dark background for the entire diagram
+    }}}%%
     
-    box rgb(200, 200, 200) Frontend Application
+    box rgb(125, 125, 125) Frontend Application
         participant SignupPage
         participant serverAction
     end
     
-    box rgb(150, 150, 150) Backend Services
+    box rgb(71, 71, 71) Backend Services
         participant usersController
         participant usersService
         participant prismaService

@@ -1,38 +1,60 @@
 ```mermaid
 sequenceDiagram
-    box rgb(125, 125, 125) Frontend
-    participant SignupPage
-    participant serverAction
+    %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#f0f0f0', 'signalColor': '#4CAF50', 'signalTextColor': '#ffffff'}}}%%
+    
+    box rgb(200, 200, 200) Frontend Application
+        participant SignupPage
+        participant serverAction
     end
-    box rgb(71, 71, 71) Backend
-    participant usersController
-    participant usersService
-    participant prismaService
+    
+    box rgb(150, 150, 150) Backend Services
+        participant usersController
+        participant usersService
+        participant prismaService
     end
+    
     SignupPage->>serverAction: create-user()
+    activate serverAction
+    
     serverAction->>usersController: createUser()
+    activate usersController
+    
     usersController->>usersService: createUser()
+    activate usersService
+    
     usersService->>prismaService: user.create()
-    alt success 
-    prismaService-->>usersService: user object
-    else email exists
-    prismaService-->>usersService: UnprocessableEntityException
-    else error
-    prismaService-->>usersService: InternalServerErrorException
-    end  
-    alt success 
-    usersService-->>usersController: user object
-    else exception
-    usersService-->>usersController: exception
-    end    
-    alt success 
-    usersController-->>serverAction: 201
-    else email exists
-    usersController-->>serverAction: 422
-    else weak pwd/not email
-    usersController-->>serverAction: 400
-    else exception
-    usersController-->>serverAction: 500
+    activate prismaService
+    
+    alt User Creation Success
+        prismaService-->>usersService: user object
+    else Email Exists
+        prismaService-->>usersService: UnprocessableEntityException
+    else Error Occurred
+        prismaService-->>usersService: InternalServerErrorException
     end
+    
+    deactivate prismaService
+    
+    alt User Creation Success
+        usersService-->>usersController: user object
+    else Exception Occurred
+        usersService-->>usersController: exception message
+    end
+    
+    deactivate usersService
+    
+    alt User Creation Success
+        usersController-->>serverAction: 201 Created
+    else Email Exists
+        usersController-->>serverAction: 422 Unprocessable Entity
+    else Weak Password / Not Email Format
+        usersController-->>serverAction: 400 Bad Request
+    else Exception Occurred
+        usersController-->>serverAction: 500 Internal Server Error
+    end
+    
+    deactivate usersController
+    
     serverAction-->>SignupPage: response (status, user details)
+    deactivate serverAction
 ```
